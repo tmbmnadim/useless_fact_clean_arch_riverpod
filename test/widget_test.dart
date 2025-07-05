@@ -1,30 +1,101 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:mood_log_tests/features/useless_facts/domain/entities/useless_fact_entity.dart';
+import 'package:mood_log_tests/features/useless_facts/presentation/controller/useless_fact_controller.dart';
+import 'package:mood_log_tests/features/useless_facts/presentation/pages/homepage.dart';
+import 'package:mood_log_tests/features/useless_facts/presentation/widgets/useless_fact_card.dart';
+import 'package:mood_log_tests/injector.dart';
 
-import 'package:mood_log_tests/main.dart';
+class MockUselessFactController extends Mock implements UselessFactController {}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  late MockUselessFactController mockController;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  setUp(() {
+    mockController = MockUselessFactController();
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  setUpAll(() {
+    registerFallbackValue(UselessFactState.initial());
+  });
+
+  final testFact = UselessFact(id: "ABC", text: "Don't be useless!");
+  UselessFactState initial = UselessFactState.initial();
+  UselessFactState loading = UselessFactState.loading();
+  UselessFactState success = UselessFactState.success(testFact);
+  UselessFactState failure = UselessFactState.failure("testfailure");
+
+  Widget buildTestableWidget(Widget child, UselessFactState state) {
+    return ProviderScope(
+      overrides: [
+        uselessFactProvider.overrideWith((ref) {
+          final controller = MockUselessFactController();
+          when(() => controller.state).thenReturn(state);
+          when(() => controller.getAFact()).thenAnswer((_) async {});
+          return controller;
+        }),
+      ],
+      child: MaterialApp(home: child),
+    );
+  }
+
+  testWidgets("Shows initial text", (tester) async {
+    // when(() => mockController.state).thenReturn(initial);
+
+    await tester.pumpWidget(
+      buildTestableWidget(UselessFactPresentor(), initial),
+    );
+
+    expect(find.byType(Text), findsOneWidget);
+  });
+
+  testWidgets("Shows loading when loading", (tester) async {
+    // when(() => mockController.state).thenReturn(loading);
+
+    await tester.pumpWidget(
+      buildTestableWidget(UselessFactPresentor(), loading),
+    );
+
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
+
+  testWidgets("Shows fact when loaded", (tester) async {
+    // when(() => mockController.state).thenReturn(success);
+
+    await tester.pumpWidget(
+      buildTestableWidget(UselessFactPresentor(), success),
+    );
+
+    expect(find.text("Don't be useless!"), findsOneWidget);
+    expect(find.byType(UselessFactCard), findsOneWidget);
+  });
+
+  testWidgets("Shows error when failed", (tester) async {
+    // when(() => mockController.state).thenReturn(failure);
+
+    await tester.pumpWidget(
+      buildTestableWidget(UselessFactPresentor(), failure),
+    );
+
+    expect(find.textContaining("testfailure"), findsOneWidget);
+  });
+
+  testWidgets("Fetch button triggers fetch", (tester) async {
+    when(() => mockController.state).thenReturn(initial);
+    when(() => mockController.getAFact()).thenAnswer((_) async {});
+
+    await tester.pumpWidget(
+      buildTestableWidget(UselessFactPresentor(), initial),
+    );
+
+    final button = find.byType(ElevatedButton);
+    expect(button, findsOneWidget);
+
+    await tester.tap(button);
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    verify(() => mockController.getAFact()).called(1);
   });
 }

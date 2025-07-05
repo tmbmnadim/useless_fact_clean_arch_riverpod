@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mood_log_tests/features/useless_facts/data/source/useless_fact_source.dart';
-import 'package:mood_log_tests/features/useless_facts/presentation/provider/useless_fact_controller.dart';
+import 'package:mood_log_tests/features/useless_facts/presentation/controller/useless_fact_controller.dart';
 
 import 'features/useless_facts/data/repository/useless_fact_repository_impl.dart';
 import 'features/useless_facts/domain/repository/useless_fact_repository.dart';

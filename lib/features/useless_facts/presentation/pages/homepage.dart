@@ -4,13 +4,13 @@ import 'package:mood_log_tests/features/useless_facts/presentation/widgets/usele
 
 import '../../../../injector.dart';
 
-class UselessFactPresentor extends ConsumerWidget {
+class UselessFactPresentor extends StatelessWidget {
   const UselessFactPresentor({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.read(uselessFactProvider.notifier);
+  Widget build(BuildContext context) {
     final screen = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(title: Text("Useless Fact")),
       body: Column(
@@ -18,8 +18,8 @@ class UselessFactPresentor extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Consumer(
-            builder: (_, ref, __) {
-              final uselessFactState = ref.watch(uselessFactProvider);
+            builder: (context, ref2, child) {
+              final uselessFactState = ref2.watch(uselessFactProvider);
               if (uselessFactState.isInitial) {
                 return SizedBox(
                   width: screen.width,
@@ -46,9 +46,16 @@ class UselessFactPresentor extends ConsumerWidget {
               }
             },
           ),
-          ElevatedButton(
-            onPressed: () => notifier.getAFact(),
-            child: Text("Get a Useless Fact"),
+          Consumer(
+            builder: (context, ref, child) {
+              final uselessFactController = ref.read(
+                uselessFactProvider.notifier,
+              );
+              return ElevatedButton(
+                onPressed: () => uselessFactController.getAFact(),
+                child: Text("Get a Useless Fact"),
+              );
+            },
           ),
         ],
       ),
