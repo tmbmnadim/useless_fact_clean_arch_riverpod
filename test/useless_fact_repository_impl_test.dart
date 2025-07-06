@@ -1,28 +1,31 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mood_log_tests/core/util/datastate.dart';
-import 'package:mood_log_tests/features/useless_facts/data/models/useless_fact_model.dart';
-import 'package:mood_log_tests/features/useless_facts/data/repository/useless_fact_repository_impl.dart';
 import 'package:mood_log_tests/features/useless_facts/domain/entities/useless_fact_entity.dart';
+import 'package:mood_log_tests/features/useless_facts/domain/repository/useless_fact_repository.dart';
 import 'package:mood_log_tests/features/useless_facts/domain/usecase/useless_fact_usecase.dart';
 import 'package:mood_log_tests/features/useless_facts/presentation/controller/useless_fact_controller.dart';
+import 'package:mood_log_tests/injector.dart';
 
-class MockFactRepository extends Mock implements UselessFactRepositoryImpl {}
+class MockFactRepository extends Mock implements UselessFactRepository {}
 
 void main() {
   late MockFactRepository mockFactRepository;
   late GetUselessFact getUselessFactUC;
   late UselessFactController controller;
 
-  final testFact = UselessFactModel(id: "ABC", text: "Don't be useless!");
-  final testFactDS = DataSuccess<UselessFactModel>(testFact);
-  final testFactDSFailure = DataFailed<UselessFactModel>("Failed");
+  final testFact = UselessFact(id: "ABC", text: "Don't be useless!");
+  final testFactDS = DataSuccess<UselessFact>(testFact);
+  final testFactDSFailure = DataFailed<UselessFact>("Failed");
 
   setUp(() {
     mockFactRepository = MockFactRepository();
     getUselessFactUC = GetUselessFact(mockFactRepository);
-    controller = UselessFactController(getUselessFactUC);
+    final container = ProviderContainer(
+      overrides: [uselessFactRepository.overrideWithValue(mockFactRepository)],
+    );
+    controller = container.read(uselessFactProvider.notifier);
   });
 
   test("usecase returns facts from repository", () async {

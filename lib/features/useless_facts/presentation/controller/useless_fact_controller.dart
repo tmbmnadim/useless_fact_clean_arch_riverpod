@@ -3,9 +3,16 @@ import 'package:mood_log_tests/core/util/datastate.dart';
 import 'package:mood_log_tests/features/useless_facts/domain/entities/useless_fact_entity.dart';
 import 'package:mood_log_tests/features/useless_facts/domain/usecase/useless_fact_usecase.dart';
 
-class UselessFactController extends StateNotifier<UselessFactState> {
-  final GetUselessFact _getCatFact;
-  UselessFactController(this._getCatFact) : super(UselessFactState.initial());
+import '../../../../injector.dart';
+
+class UselessFactController extends Notifier<UselessFactState> {
+  late GetUselessFact _getUselessFact;
+
+  @override
+  UselessFactState build() {
+    _getUselessFact = ref.read(getUselessFactUC);
+    return UselessFactState.initial();
+  }
 
   Future<void> getAFact() async {
     try {
@@ -13,7 +20,7 @@ class UselessFactController extends StateNotifier<UselessFactState> {
         state = UselessFactState.loading(uselessFact: state.uselessFact);
       }
 
-      DataState<UselessFact> num = await _getCatFact();
+      DataState<UselessFact> num = await _getUselessFact();
       if (num is DataSuccess) {
         state = UselessFactState.success(num.data!);
       } else {

@@ -18,8 +18,8 @@ class UselessFactPresentor extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Consumer(
-            builder: (context, ref2, child) {
-              final uselessFactState = ref2.watch(uselessFactProvider);
+            builder: (context, ref, child) {
+              final uselessFactState = ref.watch(uselessFactProvider);
               if (uselessFactState.isInitial) {
                 return SizedBox(
                   width: screen.width,

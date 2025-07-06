@@ -21,7 +21,6 @@ final getUselessFactUC = Provider<GetUselessFact>((ref) {
 });
 
 final uselessFactProvider =
-    StateNotifierProvider<UselessFactController, UselessFactState>((ref) {
-      final usecase = ref.read(getUselessFactUC);
-      return UselessFactController(usecase);
+    NotifierProvider<UselessFactController, UselessFactState>(() {
+      return UselessFactController();
     });

@@ -1,12 +1,14 @@
-class UselessFact {
-  String? id;
-  String? text;
-  String? source;
-  String? sourceUrl;
-  String? language;
-  String? permalink;
+import 'package:equatable/equatable.dart';
 
-  UselessFact({
+class UselessFact extends Equatable {
+  final String? id;
+  final String? text;
+  final String? source;
+  final String? sourceUrl;
+  final String? language;
+  final String? permalink;
+
+  const UselessFact({
     this.id,
     this.text,
     this.source,
@@ -14,6 +16,9 @@ class UselessFact {
     this.language,
     this.permalink,
   });
+
+  @override
+  List<Object?> get props => [id, text];
 
   UselessFact copyWith({
     String? id,

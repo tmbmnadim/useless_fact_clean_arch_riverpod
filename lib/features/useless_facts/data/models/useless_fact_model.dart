@@ -1,7 +1,7 @@
 import '../../domain/entities/useless_fact_entity.dart';
 
 class UselessFactModel extends UselessFact {
-  UselessFactModel({
+  const UselessFactModel({
     super.id,
     super.text,
     super.source,
@@ -10,13 +10,15 @@ class UselessFactModel extends UselessFact {
     super.permalink,
   });
 
-  UselessFactModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    text = json['text'];
-    source = json['source'];
-    sourceUrl = json['source_url'];
-    language = json['language'];
-    permalink = json['permalink'];
+  factory UselessFactModel.fromJson(Map<String, dynamic> json) {
+    return UselessFactModel(
+      id: json['id'],
+      text: json['text'],
+      source: json['source'],
+      sourceUrl: json['source_url'],
+      language: json['language'],
+      permalink: json['permalink'],
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -28,5 +30,16 @@ class UselessFactModel extends UselessFact {
     data['language'] = language;
     data['permalink'] = permalink;
     return data;
+  }
+
+  UselessFact toEntity() {
+    return UselessFact(
+      id: id,
+      text: text,
+      source: source,
+      sourceUrl: sourceUrl,
+      language: language,
+      permalink: permalink,
+    );
   }
 }
