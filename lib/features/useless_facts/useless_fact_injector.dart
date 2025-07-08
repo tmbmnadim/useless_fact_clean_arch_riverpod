@@ -2,9 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mood_log_tests/features/useless_facts/data/source/useless_fact_source.dart';
 import 'package:mood_log_tests/features/useless_facts/presentation/controller/useless_fact_controller.dart';
 
-import 'features/useless_facts/data/repository/useless_fact_repository_impl.dart';
-import 'features/useless_facts/domain/repository/useless_fact_repository.dart';
-import 'features/useless_facts/domain/usecase/useless_fact_usecase.dart';
+import 'data/repository/useless_fact_repository_impl.dart';
+import 'domain/repository/useless_fact_repository.dart';
+import 'domain/usecase/useless_fact_usecase.dart';
 
 final uselessFactSource = Provider<UselessFactSource>((ref) {
   return UselessFactSource();

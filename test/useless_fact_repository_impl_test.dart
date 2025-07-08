@@ -6,7 +6,7 @@ import 'package:mood_log_tests/features/useless_facts/domain/entities/useless_fa
 import 'package:mood_log_tests/features/useless_facts/domain/repository/useless_fact_repository.dart';
 import 'package:mood_log_tests/features/useless_facts/domain/usecase/useless_fact_usecase.dart';
 import 'package:mood_log_tests/features/useless_facts/presentation/controller/useless_fact_controller.dart';
-import 'package:mood_log_tests/injector.dart';
+import 'package:mood_log_tests/features/useless_facts/useless_fact_injector.dart';
 
 class MockFactRepository extends Mock implements UselessFactRepository {}
 

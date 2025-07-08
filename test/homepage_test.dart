@@ -5,7 +5,7 @@ import 'package:mood_log_tests/features/useless_facts/domain/entities/useless_fa
 import 'package:mood_log_tests/features/useless_facts/presentation/controller/useless_fact_controller.dart';
 import 'package:mood_log_tests/features/useless_facts/presentation/pages/homepage.dart';
 import 'package:mood_log_tests/features/useless_facts/presentation/widgets/useless_fact_card.dart';
-import 'package:mood_log_tests/injector.dart';
+import 'package:mood_log_tests/features/useless_facts/useless_fact_injector.dart';
 
 import 'fake_notifier.dart';
 

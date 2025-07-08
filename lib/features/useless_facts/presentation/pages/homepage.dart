@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mood_log_tests/features/useless_facts/presentation/widgets/useless_fact_card.dart';
 
-import '../../../../injector.dart';
+import '../../../injector.dart';
+import '../../useless_fact_injector.dart';
 
 class UselessFactPresentor extends StatelessWidget {
   const UselessFactPresentor({super.key});
@@ -20,6 +21,7 @@ class UselessFactPresentor extends StatelessWidget {
           Consumer(
             builder: (context, ref, child) {
               final uselessFactState = ref.watch(uselessFactProvider);
+              final logger = ref.watch(logControllerProvider);
               if (uselessFactState.isInitial) {
                 return SizedBox(
                   width: screen.width,
@@ -40,8 +42,16 @@ class UselessFactPresentor extends StatelessWidget {
                   ),
                 );
               } else {
-                return UselessFactCard(
-                  text: uselessFactState.uselessFact!.text!,
+                return Column(
+                  children: [
+                    UselessFactCard(text: uselessFactState.uselessFact!.text!),
+                    if (logger.logs.isNotEmpty)
+                      ...List.generate(logger.logs.length, (index) {
+                        return Text(
+                          "${logger.logs[index].message} [${logger.logs[index].timestamp}]",
+                        );
+                      }),
+                  ],
                 );
               }
             },
@@ -51,8 +61,12 @@ class UselessFactPresentor extends StatelessWidget {
               final uselessFactController = ref.read(
                 uselessFactProvider.notifier,
               );
+              final loggerCtrl = ref.read(logControllerProvider.notifier);
               return ElevatedButton(
-                onPressed: () => uselessFactController.getAFact(),
+                onPressed: () {
+                  uselessFactController.getAFact();
+                  loggerCtrl.addLog("Fetch Log Pressed");
+                },
                 child: Text("Get a Useless Fact"),
               );
             },
