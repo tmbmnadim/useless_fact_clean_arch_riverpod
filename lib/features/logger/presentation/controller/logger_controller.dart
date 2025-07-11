@@ -41,6 +41,9 @@ class LogController extends Notifier<LogState> {
       state = state.copyWith(status: ControllerStateStatus.loading);
       final dataState = await _createLog.call(message);
       dataState.getData();
+
+      // This stays for testing...
+      await fetchLogs();
     } catch (e) {
       state = LogState(logs: [], error: e.toString());
     }
