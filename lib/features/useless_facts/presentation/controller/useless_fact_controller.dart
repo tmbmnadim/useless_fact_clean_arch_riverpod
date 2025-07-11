@@ -24,14 +24,9 @@ class UselessFactController extends Notifier<UselessFactState> {
         state = UselessFactState.loading(uselessFact: state.uselessFact);
       }
 
-      DataState<UselessFact> num = await _getUselessFact();
-      if (num is DataSuccess) {
-        _logger.call("$runtimeType<getAFact> data fetched successfully");
-        state = UselessFactState.success(num.data!);
-      } else {
-        _logger.call("$runtimeType<getAFact> error: ${num.message}");
-        state = UselessFactState.failure(num.message);
-      }
+      final num = (await _getUselessFact()).getData();
+      _logger.call("$runtimeType<getAFact> data fetched successfully");
+      state = UselessFactState.success(num!);
     } catch (e) {
       _logger.call("$runtimeType<getAFact> error: $e");
       state = UselessFactState.failure(e.toString());

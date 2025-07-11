@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mood_log_tests/core/util/datastate.dart';
+import 'package:mood_log_tests/core/util/provider_manager.dart';
 import 'package:mood_log_tests/features/logger/domain/usecase/log_error_usecase.dart';
 import 'package:mood_log_tests/features/logger/logger_injector.dart';
 
@@ -21,18 +23,27 @@ class LogController extends Notifier<LogState> {
   }
 
   Future<void> fetchLogs() async {
-    state = LogState(logs: state.logs, isLoading: true);
     try {
-      final logs = await _getLogs.call();
-      state = LogState(logs: logs);
+      state = state.copyWith(status: ControllerStateStatus.loading);
+      final logs = (await _getLogs.call()).getData();
+
+      state = state.copyWith(logs: logs, status: ControllerStateStatus.success);
     } catch (e) {
-      state = LogState(logs: [], error: e.toString());
+      state = state.copyWith(
+        status: ControllerStateStatus.failure,
+        error: e.toString(),
+      );
     }
   }
 
   Future<void> addLog(String message) async {
-    await _createLog.call(message);
-    await fetchLogs();
+    try {
+      state = state.copyWith(status: ControllerStateStatus.loading);
+      final dataState = await _createLog.call(message);
+      dataState.getData();
+    } catch (e) {
+      state = LogState(logs: [], error: e.toString());
+    }
   }
 
   Future<void> clear() async {
@@ -43,10 +54,28 @@ class LogController extends Notifier<LogState> {
 
 class LogState {
   final List<AppLog> logs;
-  final bool isLoading;
+  final ControllerStateStatus status;
   final String? error;
 
-  LogState({required this.logs, this.isLoading = false, this.error});
+  LogState({
+    required this.logs,
+    this.status = ControllerStateStatus.initial,
+    this.error,
+  });
 
-  factory LogState.initial() => LogState(logs: []);
+  factory LogState.initial() {
+    return LogState(logs: [], status: ControllerStateStatus.initial);
+  }
+
+  LogState copyWith({
+    List<AppLog>? logs,
+    ControllerStateStatus? status,
+    String? error,
+  }) {
+    return LogState(
+      logs: logs ?? this.logs,
+      status: status ?? this.status,
+      error: error ?? this.error,
+    );
+  }
 }

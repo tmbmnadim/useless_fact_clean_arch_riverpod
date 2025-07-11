@@ -37,7 +37,7 @@ void main() {
 
     final DataState<UselessFact> result = await getUselessFactUC.call();
 
-    expect(result.data, testFactDS.data);
+    expect(result.getData(), testFactDS.getData());
   });
 
   test("controller updates state on succesful load", () async {

@@ -1,3 +1,5 @@
+import 'package:mood_log_tests/core/util/datastate.dart';
+
 import '../repository/logger_repository.dart';
 
 class ClearLogsUC {
@@ -5,7 +7,7 @@ class ClearLogsUC {
 
   ClearLogsUC(this.repository);
 
-  Future<void> call() {
+  Future<DataState> call() {
     return repository.clearLogs();
   }
 }
