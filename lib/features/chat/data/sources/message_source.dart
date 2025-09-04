@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mood_log_tests/core/util/message_socket.dart';
 import 'package:mood_log_tests/features/chat/data/models/message.dart';
 
@@ -7,31 +8,36 @@ class MessageSource {
   final MessageSocket<MessageModel> _messageSocket;
   MessageSource(this._messageSocket) {
     // Ran a local server with fast api
-    _messageSocket.initialize("");
+    _messageSocket.initialize("ws://$_base/ws");
   }
+  final String? _base = dotenv.env['server_link'];
 
   Future<List<MessageModel>> getMessages() async {
     final data = [
       {
         'text': "Hey! How are you doing today?",
-        'is_me': false,
+        'from': "a",
+        'to': "b",
         'timestamp': _getTime(30),
       },
       {
         'text':
             "I'm doing great! Just working on some Flutter projects. How about you?",
-        'is_me': true,
+        'from': "b",
+        'to': "a",
         'timestamp': _getTime(28),
       },
       {
         'text': "That sounds awesome! I'd love to see what you're building.",
-        'is_me': false,
+        'from': "a",
+        'to': "b",
         'timestamp': _getTime(25),
       },
       {
         'text':
             "Sure! I'm working on a chat app with a nice brown theme. Want to check it out?",
-        'is_me': true,
+        'from': "b",
+        'to': "a",
         'timestamp': _getTime(20),
       },
     ];

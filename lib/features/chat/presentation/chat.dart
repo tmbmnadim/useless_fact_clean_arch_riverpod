@@ -4,6 +4,7 @@ import 'package:mood_log_tests/config/theme/app_theme.dart';
 import 'package:mood_log_tests/features/chat/chat_dependencies.dart';
 import 'package:mood_log_tests/features/chat/domain/entity/message.dart';
 import 'package:mood_log_tests/features/chat/presentation/controller/chat_controller.dart';
+import 'package:mood_log_tests/features/user/user_dependencies.dart';
 
 import 'widgets/message_bubble.dart';
 
@@ -35,6 +36,7 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    initUserDependencies();
     initChatDependencies();
     final theme = Theme.of(context);
     final chatPalette = theme.extension<ChatPalette>();
