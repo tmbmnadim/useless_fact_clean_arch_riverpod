@@ -7,7 +7,6 @@ import 'package:mood_log_tests/features/chat/data/models/message.dart';
 class MessageSource {
   final MessageSocket<MessageModel> _messageSocket;
   MessageSource(this._messageSocket) {
-    // Ran a local server with fast api
     _messageSocket.initialize("ws://$_base/ws");
   }
   final String? _base = dotenv.env['server_link'];
@@ -52,7 +51,7 @@ class MessageSource {
   Stream<MessageModel> getStream() {
     final stream = _messageSocket.getMessageStream((e) {
       if (e is String) {
-        return MessageModel(text: e, isMe: false, timestamp: DateTime.now());
+        return MessageModel.fromJson(jsonDecode(e));
       } else {
         return null;
       }
@@ -61,7 +60,8 @@ class MessageSource {
       if (e == null) {
         return MessageModel(
           text: "FAILED FETCHING",
-          isMe: false,
+          from: 999,
+          to: 9999,
           timestamp: DateTime.now(),
         );
       }

@@ -9,12 +9,14 @@ import 'package:mood_log_tests/features/chat/domain/usecase/get_stream.dart';
 import 'package:mood_log_tests/features/chat/domain/usecase/send_message.dart';
 import 'package:mood_log_tests/features/chat/presentation/controller/chat_controller.dart';
 
-void initChatDependencies() {
-  final msgSocket = Get.put(MessageSocket<MessageModel>());
-  final msgSource = Get.put(MessageSource(msgSocket));
-  final msgRepo = Get.put<MessageRepository>(MessageRepositoryImpl(msgSource));
-  final getMsgUC = Get.put(GetMessages(msgRepo));
-  final getStreamUC = Get.put(GetStreamUC(msgRepo));
-  final sendMsgUC = Get.put(SendMessage(msgRepo));
-  final msgCtrl = Get.put(MessagesController(getMsgUC, getStreamUC, sendMsgUC));
+void initChatDependency() {
+  Get.put<MessageSocket<MessageModel>>(MessageSocket<MessageModel>());
+  Get.lazyPut<MessageSource>(() => MessageSource(Get.find()));
+  Get.lazyPut<MessageRepository>(() => MessageRepositoryImpl(Get.find()));
+  Get.lazyPut<GetMessages>(() => GetMessages(Get.find()));
+  Get.lazyPut<GetStreamUC>(() => GetStreamUC(Get.find()));
+  Get.lazyPut<SendMessage>(() => SendMessage(Get.find()));
+  Get.put<MessagesController>(
+    MessagesController(Get.find(), Get.find(), Get.find()),
+  );
 }

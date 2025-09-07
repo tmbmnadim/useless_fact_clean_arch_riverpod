@@ -7,18 +7,27 @@ import 'package:mood_log_tests/features/user/data/models/user_model.dart';
 
 class UserSourceNetwork {
   UserSourceNetwork();
-  final String? _base = dotenv.env['server_link'];
+  String? _base = dotenv.env['server_link'];
 
   Future<UserModel> createUser(UserModel user) async {
     try {
-      Uri? baseUri = Uri.tryParse("$_base/users");
+      _base ??= dotenv.env['server_link'];
+      if (_base == null || (_base ?? "").isEmpty) {
+        throw "Base url is empty";
+      }
+      debugPrint("THE BASE URL: $_base");
+      Uri? baseUri = Uri.tryParse("http://$_base/users/");
       if (baseUri == null) {
         throw "Server url is empty";
       }
-      Map<String, String> headers = {};
+      Map<String, String> headers = {"Content-Type": "application/json"};
       Map<String, dynamic> body = user.toJson();
 
-      final response = await http.post(baseUri, headers: headers, body: body);
+      final response = await http.post(
+        baseUri,
+        headers: headers,
+        body: jsonEncode(body),
+      );
       if (response.statusCode != 200) {
         throw response.reasonPhrase ?? "Something went wrong!";
       }
@@ -29,9 +38,12 @@ class UserSourceNetwork {
     }
   }
 
-  Future<UserModel> getUser(String userID) async {
+  Future<UserModel> getUser([int? userID]) async {
     try {
-      Uri? baseUri = Uri.tryParse("$_base/users");
+      if (userID == null) {
+        throw "User id is null";
+      }
+      Uri? baseUri = Uri.tryParse("http://$_base/users/");
       if (baseUri == null) {
         throw "Server url is empty";
       }
@@ -41,9 +53,13 @@ class UserSourceNetwork {
       if (response.statusCode != 200) {
         throw response.reasonPhrase ?? "Something went wrong!";
       }
-      final List<Map<String, dynamic>> users = jsonDecode(data);
+      final users = jsonDecode(data);
+      debugPrint("GOT USER: $users");
 
       for (var user in users) {
+        if (user is! Map<String, dynamic>) {
+          continue;
+        }
         if (user["id"] == userID) {
           return UserModel.fromJson(user);
         }

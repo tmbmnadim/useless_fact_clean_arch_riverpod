@@ -11,12 +11,13 @@ class UserRepositoryImpl implements UserRepository {
   final UserSourceNetwork _network;
   UserRepositoryImpl(this._local, this._network);
   @override
-  Future<DataState<User>> getUser(String userID) async {
+  Future<DataState<User>> getUser([int? userID]) async {
     return RepositoryErrorHandler.call<UserModel>(
       network: () {
         return _network.getUser(userID);
       },
       getFromLocal: _local.getUser,
+      saveLocal: _local.setUser,
       proxyMessage: "Failed getting user",
     );
   }

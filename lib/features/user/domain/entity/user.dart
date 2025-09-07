@@ -1,11 +1,11 @@
 class User {
-  final String? id;
+  final int? id;
   final String? name;
   final DateTime? createdAt;
 
-  User({required this.id, required this.name, required this.createdAt});
+  User({this.id, this.name, this.createdAt});
 
-  User copyWith({String? id, String? name, DateTime? createdAt}) {
+  User copyWith({int? id, String? name, DateTime? createdAt}) {
     return User(
       id: id ?? this.id,
       name: name ?? this.name,

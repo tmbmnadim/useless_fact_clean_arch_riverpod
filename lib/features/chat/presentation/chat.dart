@@ -1,15 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mood_log_tests/config/theme/app_theme.dart';
-import 'package:mood_log_tests/features/chat/chat_dependencies.dart';
 import 'package:mood_log_tests/features/chat/domain/entity/message.dart';
 import 'package:mood_log_tests/features/chat/presentation/controller/chat_controller.dart';
-import 'package:mood_log_tests/features/user/user_dependencies.dart';
+import 'package:mood_log_tests/features/user/domain/entity/user.dart';
+import 'package:mood_log_tests/features/user/presentation/controller/user_controller.dart';
+import 'package:mood_log_tests/features/user/presentation/user.dart';
+import 'package:mood_log_tests/features/user/presentation/widgets/user_dialog.dart';
 
 import 'widgets/message_bubble.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
+
+  void _showEditUserDialog(BuildContext context) async {
+    final userCtrl = Get.find<UserController>();
+    await userCtrl.initiateUser(User());
+    print("SHOW DIALOG");
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (userCtrl.user?.id == null) {
+        showDialog<int>(
+          context: context,
+          builder:
+              (context) => UserDialog(
+                title: 'Edit User ID',
+                initial: '',
+                onSubmit: (data) {
+                  userCtrl.initiateUser(User(id: int.tryParse(data)));
+                },
+                onCancel: () {
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    showDialog<String>(
+                      context: context,
+                      builder:
+                          (context) => UserDialog(
+                            title: 'Edit User Name',
+                            initial: '',
+                            onSubmit: (data) {
+                              userCtrl.initiateUser(User(name: data));
+                            },
+                            onCancel: () {},
+                          ),
+                    );
+                  });
+                },
+              ),
+        );
+      }
+    });
+  }
 
   void _sendMessage({
     required TextEditingController msgCtrl,
@@ -19,7 +58,12 @@ class ChatScreen extends StatelessWidget {
     if (msgCtrl.text.trim().isEmpty) return;
 
     chatCtrl.sendMessage(
-      Message(text: msgCtrl.text.trim(), isMe: true, timestamp: DateTime.now()),
+      Message(
+        text: msgCtrl.text.trim(),
+        from: 999,
+        to: 9999,
+        timestamp: DateTime.now(),
+      ),
     );
 
     msgCtrl.clear();
@@ -36,33 +80,40 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    initUserDependencies();
-    initChatDependencies();
     final theme = Theme.of(context);
     final chatPalette = theme.extension<ChatPalette>();
     final TextEditingController messageController = TextEditingController();
     final ScrollController scrollController = ScrollController();
-    final MessagesController chatCtrl = Get.find();
+    final chatCtrl = Get.find<MessagesController>();
+    final userCtrl = Get.find<UserController>();
+    _showEditUserDialog(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F0), // Light cream background
+      backgroundColor: const Color(0xFFF5F5F0),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF8D6E63), // Medium brown
+        backgroundColor: const Color(0xFF8D6E63),
         foregroundColor: Colors.white,
-        title: const Row(
+        title: Row(
           children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.white24,
-              child: Icon(Icons.person, color: Colors.white, size: 20),
+            GestureDetector(
+              onTap: () {
+                Get.to(UserPage());
+              },
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.white24,
+                child: Icon(Icons.person, color: Colors.white, size: 20),
+              ),
             ),
             SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Alex Johnson',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                Obx(
+                  () => Text(
+                    userCtrl.user?.name ?? "Useful User",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                 ),
                 Text(
                   'Online',
@@ -84,6 +135,72 @@ class ChatScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(11),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  // Attach button
+                  IconButton(
+                    icon: const Icon(Icons.attach_file),
+                    color: const Color(0xFF8D6E63),
+                    onPressed: () {},
+                  ),
+
+                  // Message input field
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F0),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: const Color(0xFFD7CCC8),
+                          width: 1,
+                        ),
+                      ),
+                      child: TextField(
+                        controller: messageController,
+                        decoration: const InputDecoration(
+                          hintText: 'Type a message...',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                        ),
+                        maxLines: null,
+                        onSubmitted: (_) {},
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  // Send button
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF8D6E63),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.search, color: Colors.white),
+                      onPressed: () {},
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           // Messages list
           Expanded(
             child: Obx(() {
@@ -95,7 +212,7 @@ class ChatScreen extends StatelessWidget {
                   final message = chatCtrl.messages[index];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: MessageBubble(message: message),
+                    child: MessageBubble(message: message, user: userCtrl.user),
                   );
                 },
               );

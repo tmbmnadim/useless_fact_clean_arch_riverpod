@@ -4,15 +4,16 @@ import 'package:mood_log_tests/features/user/data/sources/user_source_local.dart
 import 'package:mood_log_tests/features/user/data/sources/user_source_network.dart';
 import 'package:mood_log_tests/features/user/domain/repository/user_repository.dart';
 import 'package:mood_log_tests/features/user/domain/usecase/initiate_user.dart';
+import 'package:mood_log_tests/features/user/presentation/controller/user_controller.dart';
 
-initUserDependencies() {
-  final userSourceLocal = Get.put(UserSourceLocal());
+void initUserDependencies() {
+  Get.lazyPut<UserSourceLocal>(() => UserSourceLocal());
 
-  final userSourceNetwork = Get.put(UserSourceNetwork());
+  Get.lazyPut<UserSourceNetwork>(() => UserSourceNetwork());
 
-  UserRepository userRepository = Get.put(
-    UserRepositoryImpl(userSourceLocal, userSourceNetwork),
-  );
+  Get.lazyPut<UserRepository>(() => UserRepositoryImpl(Get.find(), Get.find()));
 
-  InitiateUser initiateUser = Get.put(InitiateUser(userRepository));
+  Get.lazyPut<InitiateUser>(() => InitiateUser(Get.find()));
+
+  Get.lazyPut<UserController>(() => UserController(Get.find()));
 }

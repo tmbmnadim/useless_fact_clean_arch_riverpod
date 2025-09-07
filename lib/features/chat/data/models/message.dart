@@ -2,27 +2,30 @@ import 'package:mood_log_tests/features/chat/domain/entity/message.dart';
 
 class MessageModel extends Message {
   MessageModel({
-    required super.text, // String
-    required super.isMe, // bool
-    required super.timestamp, // Datetime --> toIso8601String
+    required super.text,
+    required super.from,
+    required super.to,
+    required super.timestamp,
   });
 
   Map<String, dynamic> toJson() {
     return {
       "text": text,
-      "is_me": isMe,
-      "timestamp": timestamp.toIso8601String(),
+      "from": from,
+      "to": to,
+      "timestamp": timestamp?.toIso8601String(),
     };
   }
 
   Message toEntity() {
-    return Message(text: text, isMe: isMe, timestamp: timestamp);
+    return Message(text: text, from: from, to: to, timestamp: timestamp);
   }
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
       text: json["text"],
-      isMe: json["is_me"],
+      from: int.tryParse(json["from"]),
+      to: int.tryParse(json["to"]),
       timestamp: DateTime.parse(json["timestamp"]),
     );
   }
@@ -30,7 +33,8 @@ class MessageModel extends Message {
   factory MessageModel.fromEntity(Message message) {
     return MessageModel(
       text: message.text,
-      isMe: message.isMe,
+      from: message.from,
+      to: message.to,
       timestamp: message.timestamp,
     );
   }

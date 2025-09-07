@@ -12,6 +12,7 @@ class UserModel extends User {
   }
 
   Map<String, dynamic> toJson() => {
+    "id": id,
     "name": name,
     "created_at": createdAt?.toIso8601String(),
   };

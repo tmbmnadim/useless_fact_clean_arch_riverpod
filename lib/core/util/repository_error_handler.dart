@@ -25,7 +25,11 @@ class RepositoryErrorHandler {
         data = cachedData;
       }
       if (getFromLocal != null) {
-        data ??= await getFromLocal();
+        try {
+          data ??= await getFromLocal();
+        } catch (e) {
+          debugPrint("RepositoryErrorHandler<getFromLocal> $e");
+        }
       }
 
       data ??= await network();
