@@ -8,14 +8,17 @@ class MessageSocket<T> {
   factory MessageSocket() {
     return _instance<T>();
   }
-  late WebSocketChannel _channel;
+  WebSocketChannel? _channel;
 
   void initialize(String server) {
     _channel = WebSocketChannel.connect(Uri.parse(server));
   }
 
   Stream<String?> getMessageStream(T? Function(dynamic) dynamicToT) {
-    return _channel.stream.map((e) {
+    if (_channel == null) {
+      throw "Stream not initialized";
+    }
+    return _channel!.stream.map((e) {
       if (e is String) {
         return e;
       } else {
@@ -25,10 +28,16 @@ class MessageSocket<T> {
   }
 
   Future<void> sendMessage(String message) async {
-    _channel.sink.add(message);
+    if (_channel == null) {
+      throw "Stream not initialized";
+    }
+    _channel!.sink.add(message);
   }
 
   Future<void> close() async {
-    await _channel.sink.close();
+    if (_channel == null) {
+      return;
+    }
+    await _channel!.sink.close();
   }
 }

@@ -8,8 +8,8 @@ class MessageRepositoryImpl implements MessageRepository {
   MessageRepositoryImpl(this._source);
 
   @override
-  Future<List<Message>> getMessages() async {
-    final messages = await _source.getMessages();
+  Future<List<Message>> getMessages(int user1, int user2) async {
+    final messages = await _source.getMessages(user1, user2);
     return messages.map((e) => e.toEntity()).toList();
   }
 

@@ -4,7 +4,7 @@ import 'package:mood_log_tests/features/chat/domain/repository/message_repositor
 class GetMessages {
   final MessageRepository _repository;
   GetMessages(this._repository);
-  Future<List<Message>> call() {
-    return _repository.getMessages();
+  Future<List<Message>> call(int user1, int user2) {
+    return _repository.getMessages(user1, user2);
   }
 }

@@ -11,8 +11,8 @@ class MessageModel extends Message {
   Map<String, dynamic> toJson() {
     return {
       "text": text,
-      "from": from,
-      "to": to,
+      "from_user_id": from,
+      "to_user_id": to,
       "timestamp": timestamp?.toIso8601String(),
     };
   }
@@ -24,9 +24,9 @@ class MessageModel extends Message {
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
       text: json["text"],
-      from: int.tryParse(json["from"]),
-      to: int.tryParse(json["to"]),
-      timestamp: DateTime.parse(json["timestamp"]),
+      from: json["from_user_id"],
+      to: json["to_user_id"],
+      timestamp: DateTime.tryParse(json["timestamp"] ?? ""),
     );
   }
 

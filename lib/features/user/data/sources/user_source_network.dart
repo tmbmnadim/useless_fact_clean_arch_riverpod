@@ -43,7 +43,7 @@ class UserSourceNetwork {
       if (userID == null) {
         throw "User id is null";
       }
-      Uri? baseUri = Uri.tryParse("http://$_base/users/");
+      Uri? baseUri = Uri.tryParse("http://$_base/users/$userID");
       if (baseUri == null) {
         throw "Server url is empty";
       }
@@ -53,18 +53,8 @@ class UserSourceNetwork {
       if (response.statusCode != 200) {
         throw response.reasonPhrase ?? "Something went wrong!";
       }
-      final users = jsonDecode(data);
-      debugPrint("GOT USER: $users");
-
-      for (var user in users) {
-        if (user is! Map<String, dynamic>) {
-          continue;
-        }
-        if (user["id"] == userID) {
-          return UserModel.fromJson(user);
-        }
-      }
-      throw "User not found";
+      final user = jsonDecode(data);
+      return UserModel.fromJson(user);
     } catch (e, s) {
       debugPrint("UserSourceNetwork<getUser>: $e\n$s");
       rethrow;

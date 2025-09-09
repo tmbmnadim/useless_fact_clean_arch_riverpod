@@ -1,51 +1,56 @@
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:mood_log_tests/core/util/message_socket.dart';
 import 'package:mood_log_tests/features/chat/data/models/message.dart';
 
 class MessageSource {
   final MessageSocket<MessageModel> _messageSocket;
-  MessageSource(this._messageSocket) {
-    _messageSocket.initialize("ws://$_base/ws");
-  }
+  MessageSource(this._messageSocket);
   final String? _base = dotenv.env['server_link'];
 
-  Future<List<MessageModel>> getMessages() async {
-    final data = [
-      {
-        'text': "Hey! How are you doing today?",
-        'from': "a",
-        'to': "b",
-        'timestamp': _getTime(30),
-      },
-      {
-        'text':
-            "I'm doing great! Just working on some Flutter projects. How about you?",
-        'from': "b",
-        'to': "a",
-        'timestamp': _getTime(28),
-      },
-      {
-        'text': "That sounds awesome! I'd love to see what you're building.",
-        'from': "a",
-        'to': "b",
-        'timestamp': _getTime(25),
-      },
-      {
-        'text':
-            "Sure! I'm working on a chat app with a nice brown theme. Want to check it out?",
-        'from': "b",
-        'to': "a",
-        'timestamp': _getTime(20),
-      },
-    ];
+  Future<List<MessageModel>> getMessages(int user1, int user2) async {
+    await _messageSocket.close();
+    _messageSocket.initialize("ws://$_base/ws/$user1/$user2");
+    List<MessageModel> output = [];
+    Uri? baseUri = Uri.tryParse("http://$_base/messages/between/$user1/$user2");
+    if (baseUri == null) {
+      throw "Server url is empty";
+    }
 
-    return data.map((e) => MessageModel.fromJson(e)).toList();
+    final response = await http.get(baseUri);
+    final data = response.body;
+    if (response.statusCode != 200) {
+      throw response.reasonPhrase ?? "Something went wrong!";
+    }
+    List rawMsgs = jsonDecode(data);
+
+    for (var msg in rawMsgs) {
+      if (msg is Map<String, dynamic>) {
+        output.add(MessageModel.fromJson(msg));
+      }
+    }
+
+    return output;
   }
 
   Future<void> sendMessage(MessageModel message) async {
     await _messageSocket.sendMessage(jsonEncode(message.toJson()));
+    Uri? baseUri = Uri.tryParse("http://$_base/messages/");
+    if (baseUri == null) {
+      throw "Server url is empty";
+    }
+
+    final response = await http.post(
+      baseUri,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(message.toJson()),
+    );
+    final data = response.body;
+    if (response.statusCode != 200) {
+      throw response.reasonPhrase ?? "Something went wrong!";
+    }
   }
 
   Stream<MessageModel> getStream() {
