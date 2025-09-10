@@ -18,7 +18,6 @@ class MessagesController extends GetxController {
 
   Future<void> sendMessage(Message msg) async {
     await _sendMessage(msg);
-    // _messages.add(msg);
   }
 
   Future<void> initialize(int user1, int user2) async {
@@ -26,13 +25,21 @@ class MessagesController extends GetxController {
     await Future.delayed(Duration(milliseconds: 200));
     final stream = _getStream();
     stream.listen((msg) {
-      print(msg);
-      _messages.add(msg);
+      if ((msg.id ?? 1) % 2 == 0) {
+        _messages.add(msg);
+      }
     });
   }
 
   Future<void> _getMessages(int user1, int user2) async {
     final data = await _getMessagesUC(user1, user2);
-    _messages.addAll(data);
+    for (Message msg in data) {
+      bool isThere = _messages.any((msgl) {
+        return (msg.id == msgl.id);
+      });
+      if (!isThere) {
+        _messages.add(msg);
+      }
+    }
   }
 }

@@ -93,8 +93,6 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final chatCtrl = Get.find<MessagesController>();
     final userCtrl = Get.find<UserController>();
-    final theme = Theme.of(context);
-    final chatPalette = theme.extension<ChatPalette>();
     final TextEditingController messageController = TextEditingController();
     final TextEditingController searchCtrl = TextEditingController();
     final ScrollController scrollController = ScrollController();
@@ -173,6 +171,9 @@ class ChatScreen extends StatelessWidget {
           // Messages list
           Expanded(
             child: Obx(() {
+              if (chatCtrl.messages.isEmpty) {
+                return SizedBox();
+              }
               if (chatCtrl.messages.last.from == userCtrl.otherUser) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   scrollController.animateTo(
